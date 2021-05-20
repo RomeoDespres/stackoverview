@@ -1,5 +1,4 @@
 import datetime as dt
-import logging
 from typing import Any, Iterable, Tuple
 
 from psycopg2.extensions import cursor as PostgresCursor
@@ -7,6 +6,7 @@ from psycopg2.extras import execute_batch
 
 from client import APIClient, Answers, User, Questions
 import db
+import log
 
 
 def fetch_last_30_days() -> Tuple[Questions, Answers]:
@@ -19,17 +19,19 @@ def fetch_last_30_days() -> Tuple[Questions, Answers]:
 
 
 def run(event: Any = None, context: Any = None) -> None:
-    logging.basicConfig(level=logging.INFO)
-    logging.info("Running ETL")
+    logger = log.get_logger()
+
+    logger.info("Running ETL")
     questions, answers = fetch_last_30_days()
     upload_data(questions, answers)
-    logging.info("ETL ran successfully")
+    logger.info("ETL ran successfully")
 
 
 def upload_accepted_answers(
     questions: Questions, cursor: PostgresCursor
 ) -> None:
-    logging.info("Uploading accepted answers")
+    logger = log.get_logger()
+    logger.info("Uploading accepted answers")
 
     def iter_answers() -> Iterable[dict]:
         for question in questions["items"]:
@@ -43,7 +45,8 @@ def upload_accepted_answers(
 
 
 def upload_answers(answers: Answers, cursor: PostgresCursor) -> None:
-    logging.info("Uploading answers")
+    logger = log.get_logger()
+    logger.info("Uploading answers")
 
     def iter_answers() -> Iterable[dict]:
         for answer in answers["items"]:
@@ -62,7 +65,8 @@ def upload_data(questions: Questions, answers: Answers) -> None:
 
 
 def upload_questions(questions: Questions, cursor: PostgresCursor) -> None:
-    logging.info("Uploading questions")
+    logger = log.get_logger()
+    logger.info("Uploading questions")
     items = questions["items"]
 
     def iter_questions() -> Iterable[dict]:
@@ -73,7 +77,7 @@ def upload_questions(questions: Questions, cursor: PostgresCursor) -> None:
         cursor, db.get_sql("upsert_question"), iter_questions(), 1000
     )
 
-    logging.info("Uploading tags")
+    logger.info("Uploading tags")
     tags = {(tag,) for question in items for tag in question["tags"]}
     execute_batch(cursor, db.get_sql("upsert_tag"), tags)
 
@@ -83,7 +87,7 @@ def upload_questions(questions: Questions, cursor: PostgresCursor) -> None:
             for tag in question["tags"]:
                 yield {"question_id": question_id, "tag_id": tag}
 
-    logging.info("Uploading question tags")
+    logger.info("Uploading question tags")
     delete, insert = db.get_sql_script("upsert_question_tag")
     question_ids = tuple({question["question_id"] for question in items})
     cursor.execute(delete, (question_ids,))
@@ -93,7 +97,8 @@ def upload_questions(questions: Questions, cursor: PostgresCursor) -> None:
 def upload_users(
     questions: Questions, answers: Answers, cursor: PostgresCursor
 ) -> None:
-    logging.info("Uploading users")
+    logger = log.get_logger()
+    logger.info("Uploading users")
 
     def iter_users() -> Iterable[User]:
         for question in questions["items"]:

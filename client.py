@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 import datetime as dt
-import logging
 import os
 from queue import Queue
 import time
@@ -11,6 +10,8 @@ from typing import Any, Dict, List, Literal, Iterator, Optional, TypedDict
 import requests
 from requests.exceptions import ConnectionError
 from requests_toolbelt.sessions import BaseUrlSession
+
+import log
 
 
 class Answer(TypedDict):
@@ -82,7 +83,7 @@ class APIClientSession(BaseUrlSession):
             delta = (self.backoff_until - dt.datetime.now()).total_seconds()
             delta += 0.1  # Just for safety
             if delta >= 0:
-                logging.info(f"Backoff for {delta:.1f} seconds")
+                log.get_logger().info(f"Backoff for {delta:.1f} seconds")
                 time.sleep(delta)
             self.backoff_until = None
 
@@ -92,7 +93,7 @@ class APIClientSession(BaseUrlSession):
             delta = (now - self.request_queue.get()).total_seconds()
             if delta <= self.throttling_window:
                 wait_time = self.throttling_window - delta
-                logging.info(f"Throttle for {wait_time:.1f} seconds")
+                log.get_logger().info(f"Throttle for {wait_time:.1f} seconds")
                 time.sleep(wait_time)
 
     def request(
@@ -128,6 +129,7 @@ class APIClient:
 
     def answers(self, questions: Questions) -> Answers:
         batch_size = 100
+        logger = log.get_logger()
 
         answers: Answers = {
             "has_more": True,
@@ -147,7 +149,7 @@ class APIClient:
             while answers["has_more"]:
                 page += 1
                 params["page"] = page
-                logging.info(
+                logger.info(
                     f"Answers: fetching page {params['page']} "
                     f"of batch {i // 100}"
                 )
@@ -166,12 +168,13 @@ class APIClient:
             yield result
             result["success"] = True
         except ConnectionError:
-            logging.error("Too many requests. Retrying in 2 minutes.")
+            log.get_logger().error("Too many requests. Retrying in 2 minutes.")
             time.sleep(120)
             self.session = APIClientSession()
             result["success"] = False
 
     def questions(self, start: dt.datetime, end: dt.datetime) -> Questions:
+        logger = log.get_logger()
         page = 0
         params = {
             "tagged": "python",
@@ -188,7 +191,7 @@ class APIClient:
         while questions["has_more"]:
             page += 1
             params["page"] = page
-            logging.info(f"Questions: fetching page {params['page']}")
+            logger.info(f"Questions: fetching page {params['page']}")
             with self.handle_connection_error() as result:
                 questions = self.session.get("questions", params=params).json()
             if not result["success"]:
