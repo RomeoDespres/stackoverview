@@ -1,6 +1,6 @@
 import datetime as dt
 import logging
-from typing import Iterable, Tuple
+from typing import Any, Iterable, Tuple
 
 from psycopg2.extensions import cursor as PostgresCursor
 from psycopg2.extras import execute_batch
@@ -18,7 +18,7 @@ def fetch_last_30_days() -> Tuple[Questions, Answers]:
     return questions, answers
 
 
-def run() -> None:
+def run(event: Any = None, context: Any = None) -> None:
     logging.basicConfig(level=logging.INFO)
     logging.info("Running ETL")
     questions, answers = fetch_last_30_days()
