@@ -23,7 +23,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.9"
+          python-version: "3.8"
 
       - name: Install dependencies
         run: pip install black flake8 mypy
@@ -33,6 +33,6 @@ jobs:
 
       - name: Check Black compliance
         run: black --check .
-      
+
       - name: Check mypy compliance
         run: mypy
