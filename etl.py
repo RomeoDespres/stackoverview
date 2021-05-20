@@ -18,6 +18,14 @@ def fetch_last_30_days() -> Tuple[Questions, Answers]:
     return questions, answers
 
 
+def run() -> None:
+    logging.basicConfig(level=logging.INFO)
+    logging.info("Running ETL")
+    questions, answers = fetch_last_30_days()
+    upload_data(questions, answers)
+    logging.info("ETL ran successfully")
+
+
 def upload_accepted_answers(
     questions: Questions, cursor: PostgresCursor
 ) -> None:
