@@ -9,20 +9,20 @@ import db
 import log
 
 
-def fetch_last_30_days() -> Tuple[Questions, Answers]:
+def fetch_last_n_days(n: int) -> Tuple[Questions, Answers]:
     end = dt.datetime.now()
-    start = end - dt.timedelta(seconds=30 * 24 * 60 * 60)
+    start = end - dt.timedelta(seconds=n * 24 * 60 * 60)
     api_client = APIClient()
     questions = api_client.questions(start=start, end=end)
     answers = api_client.answers(questions)
     return questions, answers
 
 
-def run(event: Any = None, context: Any = None) -> None:
+def run(event: dict, context: Any = None) -> None:
     logger = log.get_logger()
 
     logger.info("Running ETL")
-    questions, answers = fetch_last_30_days()
+    questions, answers = fetch_last_n_days(event["n_days"])
     upload_data(questions, answers)
     logger.info("ETL ran successfully")
 
