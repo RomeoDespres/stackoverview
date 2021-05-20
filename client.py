@@ -168,8 +168,8 @@ class APIClient:
             yield result
             result["success"] = True
         except ConnectionError:
-            log.get_logger().error("Too many requests. Retrying in 2 minutes.")
-            time.sleep(120)
+            log.get_logger().error("Too many requests. Retrying in 1 minute.")
+            time.sleep(60)
             self.session = APIClientSession()
             result["success"] = False
 
