@@ -22,7 +22,7 @@ def run(event: dict, context: Any = None) -> None:
     logger = log.get_logger()
 
     logger.info("Running ETL")
-    questions, answers = fetch_last_n_days(event["n_days"])
+    questions, answers = fetch_last_n_days(event.get("n_days", 15))
     upload_data(questions, answers)
     logger.info("ETL ran successfully")
 
