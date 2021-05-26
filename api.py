@@ -3,12 +3,19 @@ import functools
 import json
 from typing import Any, Callable, Dict, List
 
+from typing import TypedDict
+
 import db
+
+
+class Response(TypedDict):
+    statusCode: int
+    body: str
 
 
 def get(f: Callable) -> Callable:
     @functools.wraps(f)
-    def wrapped(event: dict = {}, context: Any = None) -> dict:
+    def wrapped(event: dict = {}, context: Any = None) -> Response:
         result = f()
         return {
             "statusCode": 200,
