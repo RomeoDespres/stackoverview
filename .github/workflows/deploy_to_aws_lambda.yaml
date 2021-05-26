@@ -6,8 +6,8 @@ on:
       - master
 
 jobs:
-  deploy:
-    name: Build and deploy
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository contents
@@ -25,12 +25,33 @@ jobs:
         uses: montudor/action-zip@v0.1.0
         with:
           args: zip -qq -r ./bundle.zip ./
+      
+      - name: Upload compressed bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: bundle
+          path: bundle.zip
 
-      - name: Deploy
+  deploy:
+    strategy:
+      matrix:
+        function:
+          - stackoverflow-dashboard-etl
+    name: Deploy ${{ matrix.function }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download compressed bundle
+        uses: actions/download-artifact@v2
+        with:
+          name: bundle
+        
+      - name: Deploy ${{ matrix.function }}
         uses: appleboy/lambda-action@master
         with:
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws_region: eu-west-3
-          function_name: stackoverflow-dashboard-etl
+          function_name: ${{ matrix.function }}
           zip_file: bundle.zip
+          environment: POSTGRES_DB=${{ secrets.POSTGRES_DB }},POSTGRES_HOST=${{ secrets.POSTGRES_HOST }},POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }},POSTGRES_PORT=${{ secrets.POSTGRES_PORT }},POSTGRES_USER=${{ secrets.POSTGRES_USER }},STACKOVERFLOW_API_KEY=${{ secrets.STACKOVERFLOW_API_KEY }}
