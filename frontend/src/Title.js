@@ -10,6 +10,7 @@ const useStyles = makeStyles((theme) => ({
       marginBottom: theme.spacing(2),
     },
   },
+  subtitle: { marginLeft: "0.25rem" },
 }))
 
 export default function Title({ title, subtitle }) {
@@ -29,7 +30,9 @@ export default function Title({ title, subtitle }) {
         </Typography>
       </Fade>
       <Fade in={showSubtitle} timeout={750}>
-        <Typography variant="subtitle1">{subtitle}</Typography>
+        <Typography variant="subtitle1" className={classes.subtitle}>
+          {subtitle}
+        </Typography>
       </Fade>
     </>
   )
