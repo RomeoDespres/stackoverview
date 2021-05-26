@@ -36,3 +36,26 @@ jobs:
 
       - name: Check mypy compliance
         run: mypy
+
+  check-js-code-style:
+    name: Check JavaScript code style
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository contents
+      uses: actions/checkout@v2
+
+    - name: Set up Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm install prettier
+
+    - name: Check Prettier compliance
+      run: |
+        cd frontend
+        npx prettier --check src
+        npx prettier --check pages
