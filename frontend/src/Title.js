@@ -13,18 +13,12 @@ const useStyles = makeStyles((theme) => ({
   subtitle: { marginLeft: "0.25rem" },
 }))
 
-export default function Title({ title, subtitle }) {
-  const [showSubtitle, setShowSubtitle] = useState(false)
-
+export default function Title({ title, subtitle, showTitle, showSubtitle }) {
   const classes = useStyles()
-
-  useEffect(() => {
-    setTimeout(() => setShowSubtitle(true), 500)
-  }, [])
 
   return (
     <>
-      <Fade in={true} timeout={750}>
+      <Fade in={showTitle} timeout={750}>
         <Typography variant="h1" className={classes.title}>
           {title}
         </Typography>
