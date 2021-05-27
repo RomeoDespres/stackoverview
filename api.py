@@ -22,9 +22,10 @@ def get(f: Callable) -> Callable:
 
 @get
 def tag_reputation() -> Dict[str, Union[List, float]]:
+    params = {"limit": 20, "offset": 0}
     with closing(db.get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(db.get_sql("get_tags_reputation"))
+            cursor.execute(db.get_sql("get_tags_reputation"), params)
             columns = [description[0] for description in cursor.description]
             rows = cursor.fetchall()
             cursor.execute(db.get_sql("get_avg_reputation"))
