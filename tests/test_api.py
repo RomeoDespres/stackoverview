@@ -20,7 +20,10 @@ def check_types(o: Any, t: Union[type, list, dict]) -> None:
 
 def test_tag_reputation() -> None:
     body = json.loads(api.tag_reputation()["body"])
-    types = {"tags": [{"tag": str, "reputation": float}]}
+    types = {
+        "tags": [{"tag": str, "reputation": float}],
+        "avgReputation": float,
+    }
     check_types(body, types)
     reputations = [tag["reputation"] for tag in body["tags"]]
     assert reputations == sorted(reputations)[::-1]
