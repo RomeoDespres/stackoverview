@@ -9,7 +9,7 @@ where
     answer.score between -1 and 10
     and answer.created_at >= current_date - 30
 group by tag_id
-having count(*) > 100
+having count(*) > 50
 order by 2 desc
 limit %(limit)s
 offset %(offset)s
