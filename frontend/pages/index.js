@@ -7,6 +7,6 @@ export default function Page(props) {
 
 export async function getServerSideProps(context) {
   return {
-    props: { tags: await fetchTagReputation() },
+    props: await fetchTagReputation(),
   }
 }

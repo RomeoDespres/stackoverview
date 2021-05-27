@@ -5,10 +5,13 @@ import Title from "./Title"
 import useDelayedBool from "./useDelayedBool"
 
 const useStyles = makeStyles((theme) => ({
-  root: { margin: theme.spacing(4) },
+  root: {
+    [theme.breakpoints.up("md")]: { margin: theme.spacing(4) },
+    margin: theme.spacing(2),
+  },
 }))
 
-export default function Home({ tags }) {
+export default function Home({ tags, avgReputation }) {
   const showTitle = useDelayedBool(0)
   const showSubtitle = useDelayedBool(250)
   const showCharts = useDelayedBool(1000)
@@ -26,7 +29,11 @@ export default function Home({ tags }) {
         showTitle={showTitle}
         showSubtitle={showSubtitle}
       />
-      <TagReputationChart tags={tags} show={showCharts} />
+      <TagReputationChart
+        avgReputation={avgReputation}
+        tags={tags}
+        show={showCharts}
+      />
     </div>
   )
 }

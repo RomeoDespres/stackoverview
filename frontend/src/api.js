@@ -6,5 +6,5 @@ function getApiUrl(path) {
 export async function fetchTagReputation() {
   const response = await fetch(getApiUrl("tags/reputation"))
   const body = await response.json()
-  return body.tags
+  return body
 }
