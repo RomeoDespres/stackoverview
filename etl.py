@@ -62,6 +62,8 @@ def upload_data(questions: Questions, answers: Answers) -> None:
             upload_questions(questions, cursor)
             upload_answers(answers, cursor)
             upload_accepted_answers(questions, cursor)
+            for view in "tag_reputation", "avg_answer_reputation":
+                cursor.execute(f"refresh materialized view {view}")
 
 
 def upload_questions(questions: Questions, cursor: PostgresCursor) -> None:
